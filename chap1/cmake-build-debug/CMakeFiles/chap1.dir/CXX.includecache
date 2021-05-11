@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+E:/2021_spring/dip/Digital-Image-Processing-Homework/chap1/bmp.cpp
+bmp.h
+E:/2021_spring/dip/Digital-Image-Processing-Homework/chap1/bmp.h
+cstdio
+-
+malloc.h
+-
+
+E:/2021_spring/dip/Digital-Image-Processing-Homework/chap1/bmp.h
+
