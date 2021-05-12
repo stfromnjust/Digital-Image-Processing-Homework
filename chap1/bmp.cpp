@@ -172,6 +172,8 @@ int main()
 //        伪彩色需要更改Palette
         pseudoColor(palette);
         write8bitBmpTarget(fileHeader, infoHeader, palette, pImg, trgPseudoColor);
+        free(palette);
+        free(pImg);
     }
     else if (infoHeader->biBitCount == 24)
     {
@@ -181,8 +183,11 @@ int main()
 //        24位Bmp反相
         inverseBmp(pImg, imgPixelSize);
         write24bitBmpTarget(fileHeader, infoHeader, pImg, trgInverse);
+        free(pImg);
     }
 
     fclose(src);
+    fclose(trgInverse);
+    fclose(trgPseudoColor);
     return 0;
 }
