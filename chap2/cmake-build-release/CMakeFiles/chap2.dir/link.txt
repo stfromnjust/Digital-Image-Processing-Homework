@@ -1,0 +1,3 @@
+"D:\CLion 2020.3.3\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\chap2.dir/objects.a
+D:\mingw64\bin\ar.exe cr CMakeFiles\chap2.dir/objects.a @CMakeFiles\chap2.dir\objects1.rsp
+D:\mingw64\bin\g++.exe -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\chap2.dir/objects.a -Wl,--no-whole-archive -o chap2.exe -Wl,--out-implib,libchap2.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\chap2.dir\linklibs.rsp
