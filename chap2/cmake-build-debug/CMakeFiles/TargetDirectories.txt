@@ -1,3 +1,0 @@
-E:/2021_spring/dip/Digital-Image-Processing-Homework/chap2/cmake-build-debug/CMakeFiles/chap2.dir
-E:/2021_spring/dip/Digital-Image-Processing-Homework/chap2/cmake-build-debug/CMakeFiles/edit_cache.dir
-E:/2021_spring/dip/Digital-Image-Processing-Homework/chap2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
