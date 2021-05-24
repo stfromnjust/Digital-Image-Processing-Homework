@@ -3,8 +3,7 @@
 //
 #include "BmpTool.cpp"
 #include <cstdio>
-#include <malloc.h>
-#include <time.h>
+#include <ctime>
 
 using namespace std;
 
@@ -12,27 +11,28 @@ void t2()
 {
     BmpTool tool;
     tool.read24BitBmp2Img("../resource/H0201Rgb.bmp");
-    tool.rgb2gry2();
+    tool.rgb2gry2();    // 使用查找表
+//    tool.rgb2gry1();  // 不使用查找表
     tool.write8BitImg2Bmp("../resource/H0201Gry.bmp");
 }
 
-void t3()
+void t3(double trgBright, double trgContrast)
 {
     BmpTool tool;
     tool.read8BitBmp2Img("../resource/H0201Gry.bmp");
-    int *histogram = new int[256];
-    double *bright = (double *) malloc(sizeof(double));
-    double *contrast = (double *) malloc(sizeof(double));
+    auto *histogram = new int[256];
+    auto *bright = new double;
+    auto *contrast = new double;
     *bright = 0.0;
     *contrast = 1.0;
     tool.getHistogram(histogram);
     tool.getBrightContrast(histogram, bright, contrast);
-    tool.meanVarRegular(*bright, *contrast, 50, 20);
-    tool.write8BitImg2Bmp("../output/t3_1.bmp");
-    tool.meanVarRegular(*bright, *contrast, 100, 30);
-    tool.write8BitImg2Bmp("../output/t3_2.bmp");
-    tool.meanVarRegular(*bright, *contrast, 150, 40);
-    tool.write8BitImg2Bmp("../output/t3_3.bmp");
+    tool.meanVarRegular(*bright, *contrast, trgBright, trgContrast);
+    tool.write8BitImg2Bmp("../output/t3.bmp");
+    printf("t3.bmp:\nbright: %.2f\ncontrast: %.2f\n", trgBright, trgContrast);
+    delete [] histogram;
+    delete bright;
+    delete contrast;
 }
 
 void t4()
@@ -70,10 +70,10 @@ int main()
 //    end = clock();
 //    double dur = (double)(end - start);
 //    printf("Use Time:%fs\n",(dur/CLOCKS_PER_SEC));
-//    t3();
+//      t3(150, 40);
 //    t4();
 //    t5();
-//    t7();
+    t7();
     return 0;
 }
 

@@ -12,11 +12,13 @@ class BmpTool
 {
 private:
     BYTE *pImg = nullptr;
-    long width, height;
-    BITMAPFILEHEADER fileHeader;
-    BITMAPINFOHEADER infoHeader;
+    long width = 0.0, height = 0.0;
+    BITMAPFILEHEADER fileHeader{};
+    BITMAPINFOHEADER infoHeader{};
 
 public:
+    ~BmpTool();
+
     bool read8BitBmp2Img(const char *filename);
 
     bool read24BitBmp2Img(const char *filename);
@@ -35,17 +37,17 @@ public:
 
     void getHistogram(int *histogram);
 
-    void getBrightContrast(int *histogram, double *bright, double *contrast);
+    static void getBrightContrast(const int *histogram, double *bright, double *contrast);
 
     void meanVarRegular(double bright, double contrast, double trgBright, double trgContrast);
 
     void histogramEqualize();
 
-    void histogramEqualize(short int* p14Img);
+    void histogramEqualize(const short int* p14Img);
 
     void histogramEqualizeRgb();
 
-    void histogramEqualizeRgb1();
+//    void histogramEqualizeRgb1();
 
 
 

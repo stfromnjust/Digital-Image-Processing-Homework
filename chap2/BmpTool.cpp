@@ -3,16 +3,14 @@
 //
 #include "BmpTool.h"
 #include <cstdio>
-#include <malloc.h>
 #include <cmath>
 
-#define PI 3.1415926
 using namespace std;
 
 
 bool BmpTool::read8BitBmp2Img(const char *filename)
 {
-    if (pImg) delete pImg;
+    delete pImg;
     FILE *fp;
     unsigned int size;
     int Suc = 1, w, h;
@@ -39,7 +37,7 @@ bool BmpTool::read8BitBmp2Img(const char *filename)
 
     extend = (w + 3) / 4 * 4 - w;
     size = infoHeader.biWidth * infoHeader.biHeight;
-    fseek(fp, fileHeader.bfOffBits, SEEK_SET);
+    fseek(fp, (long) fileHeader.bfOffBits, SEEK_SET);
     if ((pImg = new BYTE[size]) != nullptr)
     {
         for (int i = 0; i < h; i++)  // 0,1,2,3,4(5): 400-499
@@ -78,7 +76,7 @@ short int *BmpTool::read14bitRaw2Img(const char *filename, long w, long h)
         return nullptr;
     }
     width = w, height = h;
-    auto *p14Img = (short int*)malloc(sizeof(short int) * w * h);
+    auto *p14Img = new short int[w * h];
     fread(p14Img, sizeof(short int), width * height, fp);
     fclose(fp);
     return p14Img;
@@ -86,7 +84,7 @@ short int *BmpTool::read14bitRaw2Img(const char *filename, long w, long h)
 
 bool BmpTool::read24BitBmp2Img(const char *filename)
 {
-    if (pImg) delete pImg;
+    delete pImg;
     FILE *fp;
     unsigned int size;
     int Suc = 1, w, h;
@@ -113,7 +111,7 @@ bool BmpTool::read24BitBmp2Img(const char *filename)
 
     extend = (w * 3 + 3) / 4 * 4 - w * 3;
     size = infoHeader.biWidth * infoHeader.biHeight * 3;
-    fseek(fp, fileHeader.bfOffBits, SEEK_SET);
+    fseek(fp, (long) fileHeader.bfOffBits, SEEK_SET);
     if ((pImg = new BYTE[size]) != nullptr)
     {
         for (int i = 0; i < h; i++)  // 0,1,2,3,4(5): 400-499
@@ -272,24 +270,20 @@ void BmpTool::rgb2gry1()
         BYTE r = *pCur;
         BYTE g = *(pCur + 1);
         BYTE b = *(pCur + 2);
-        *pResImg = max(0, min(255, int(0.299 * r + 0.587 * g + 0.114 * b)));
+        *pResImg = max(0, min(255, int(299 * r + 587 * g + 114 * b) / 1000));
     }
+    delete pImg;
     pImg = pRet;
 }
 
-BYTE LUT[256][256][256];
-
 void BmpTool::rgb2gry2()
 {
-    for (int r = 0; r < 256; r++)
+    int LUTRed[256], LUTGreen[256], LUTBlue[256];
+    for (int g = 0; g < 256; g++)
     {
-        for (int g = 0; g < 256; g++)
-        {
-            for (int b = 0; b < 256; b++)
-            {
-                LUT[r][g][b] = max(0, min(255, int(0.299 * r + 0.587 * g + 0.114 * b)));
-            }
-        }
+        LUTRed[g] = 299 * g;
+        LUTGreen[g] = 587 * g;
+        LUTBlue[g] = 114 * g;
     }
     BYTE *pCur, *pEnd = pImg + width * height * 3, *pResImg = new BYTE[width * height];
     BYTE *pRet = pResImg;
@@ -298,8 +292,9 @@ void BmpTool::rgb2gry2()
         BYTE r = *pCur;
         BYTE g = *(pCur + 1);
         BYTE b = *(pCur + 2);
-        *pResImg = LUT[r][g][b];
+        *pResImg = (LUTRed[r] + LUTGreen[g] + LUTBlue[b]) / 1000;
     }
+    delete pImg;
     pImg = pRet;
 }
 
@@ -314,11 +309,11 @@ void BmpTool::linearStretch(double k, double b)
     pEnd = pImg + width * height;
     for (pCur = pImg; pCur < pEnd; pCur++)
     {
-        *(pCur++) = LUT[*pCur];
+        *(pCur) = LUT[*pCur];
     }
 }
 
-void BmpTool::getBrightContrast(int *histogram, double *bright, double *contrast)
+void BmpTool::getBrightContrast(const int *histogram, double *bright, double *contrast)
 {
     int g;
     int sum, num;
@@ -342,7 +337,7 @@ void BmpTool::getHistogram(int *histogram)
     memset(histogram, 0, sizeof(int) * 256);
     for (pCur = pImg; pCur < pEnd; pCur++)
     {
-        histogram[*(pCur++)]++;
+        histogram[*(pCur)]++;
     }
 }
 
@@ -359,7 +354,10 @@ void BmpTool::histogramEqualize()
     int histogram[256], LUT[256], A, g;
     // get histogram
     memset(histogram, 0, sizeof(int) * 256);
-    for (pCur = pImg; pCur < pEnd;) histogram[*(pCur++)]++;
+    for (pCur = pImg; pCur < pEnd; pCur++)
+    {
+        histogram[*(pCur)]++;
+    }
     // get LUT
     A = histogram[0];
     LUT[0] = 255 * A / (width * height);
@@ -369,17 +367,16 @@ void BmpTool::histogramEqualize()
         LUT[g] = 255 * A / (width * height);
     }
     // Equalize
-    for (pCur = pImg; pCur < pEnd;)
+    for (pCur = pImg; pCur < pEnd; pCur++)
     {
-        *(pCur++) = LUT[*pCur];
+        *(pCur) = LUT[*pCur];
     }
 }
 
-void BmpTool::histogramEqualize(short int* p14Img)
+void BmpTool::histogramEqualize(const short int *p14Img)
 {
-    int histogram[1<<14], LUT[1<<14], A, i, g;
-    pImg = (BYTE *)malloc(sizeof(BYTE) * width * height);
-    BYTE *pCur, *pEnd = pImg + width * height;
+    int histogram[1 << 14], LUT[1 << 14], A, i, g;
+    pImg = new BYTE[width * height];
     // get Histogram
     memset(histogram, 0, sizeof(int) * (1 << 14));
     for (i = 0; i < width * height; i++)
@@ -437,70 +434,75 @@ void BmpTool::histogramEqualizeRgb()
     }
 }
 
+// TODO bad result
+//void BmpTool::histogramEqualizeRgb1()
+//{
+//    BYTE *pCur, *pEnd = pImg + width * height * 3;
+//    auto *pHsiImg = new double[width * height * 3];
+//    double *pHsiEnd = pHsiImg + width * height * 3;
+//    double *pHsiCur;
+//    for (pCur = pImg, pHsiCur = pHsiImg; pCur < pEnd; pCur += 3, pHsiCur += 3)
+//    {
+//        BYTE r = *(pCur), g = *(pCur + 1), b = *(pCur + 2);
+//        double h, s, i;
+//        double theta = acos((0.5 * (r - g + r - b)) / (sqrt((r - g) * (r - g) + (r - b) * (g - b) + 1e-9)));
+//        if (b <= g) h = theta; else h = 2 * PI - theta;
+//        s = 1 - 3.0 * min(b, min(r, g)) / (r + g + b);
+//        i = (r + g + b) / 3.0;
+//        *(pHsiCur) = h / (2 * PI);
+//        *(pHsiCur + 1) = s;
+//        *(pHsiCur + 2) = i;
+//    }
+//    // Equalize i
+//    // get hist
+//    int histI[256];
+//    int LUTI[256];
+//    for (pHsiCur = pHsiImg; pHsiCur < pHsiEnd; pHsiCur += 3)
+//    {
+//        histI[int(*(pHsiCur + 2))]++;
+//    }
+//    // get LUTI
+//    int ai = histI[0];
+//    LUTI[0] = 255 * ai / (width * height);
+//    for (int g = 1; g < 256; g++)
+//    {
+//        ai += histI[g];
+//        LUTI[g] = 255 * ai / (width * height);
+//    }
+//    for (pCur = pImg, pHsiCur = pHsiImg; pCur < pEnd; pCur += 3, pHsiCur += 3)
+//    {
+//        *(pHsiCur + 2) = LUTI[int(*(pHsiCur + 2))];
+//        double h, s, i;
+//        h = *(pHsiCur) * 2 * PI;
+//        s = *(pHsiCur + 1);
+//        i = *(pHsiCur + 2);
+//        if (h >= 0 && h < 2 / 3 * PI)
+//        {
+//            *(pCur) = i * (1 + s * cos(h) / (cos(PI / 3 - h) + 1e-9));
+//            *(pCur + 2) = i * (1 - s);
+//            *(pCur + 1) = 3 * i - (*(pCur) + *(pCur + 2));
+//        }
+//        else if (h >= 2 / 3 * PI && h < 4 / 3 * PI)
+//        {
+//            h = h - 2 * PI / 3;
+//            *(pCur) = i * (1 - s);
+//            *(pCur + 1) = i * (1 + s * cos(h) / (cos(PI / 3 - h) + 1e-9));
+//            *(pCur + 2) = 3 * i - (*(pCur) + *(pCur + 1));
+//        }
+//        else if (h >= 4 / 3 * PI && h <= 2 * PI)
+//        {
+//
+//            h = h - 4 * PI / 3;
+//            *(pCur + 1) = i * (1 - s);
+//            *(pCur + 2) = i * (1 + s * cos(h) / (cos(PI / 3 - h) + 1e-9));
+//            *(pCur) = 3 * i - (*(pCur + 1) + *(pCur + 2));
+//        }
+//    }
+//}
 
-void BmpTool::histogramEqualizeRgb1()
+BmpTool::~BmpTool()
 {
-    BYTE *pCur, *pEnd = pImg + width * height * 3;
-    double *pHsiImg = new double[width * height * 3];
-    double *pHsiEnd = pHsiImg + width * height * 3;
-    double *pHsiCur;
-    for (pCur = pImg, pHsiCur = pHsiImg; pCur < pEnd; pCur += 3, pHsiCur += 3)
-    {
-        BYTE r = *(pCur), g = *(pCur + 1), b = *(pCur + 2);
-        double h, s, i;
-        double theta = acos((0.5 * (r - g + r - b)) / (sqrt((r - g) * (r - g) + (r - b) * (g - b) + 1e-9)));
-        if (b <= g) h = theta; else h = 2 * PI - theta;
-        s = 1 - 3.0 * min(b, min(r, g)) / (r + g + b);
-        i = (r + g + b) / 3.0;
-        *(pHsiCur) = h / (2 * PI);
-        *(pHsiCur + 1) = s;
-        *(pHsiCur + 2) = i;
-    }
-    // Equalize i
-    // get hist
-    int histI[256];
-    int LUTI[256];
-    for (pHsiCur = pHsiImg; pHsiCur < pHsiEnd; pHsiCur += 3)
-    {
-        histI[int(*(pHsiCur + 2))]++;
-    }
-    // get LUTI
-    int ai = histI[0];
-    LUTI[0] = 255 * ai / (width * height);
-    for (int g = 1; g < 256; g++)
-    {
-        ai += histI[g];
-        LUTI[g] = 255 * ai / (width * height);
-    }
-    for (pCur = pImg, pHsiCur = pHsiImg; pCur < pEnd; pCur += 3, pHsiCur += 3)
-    {
-        *(pHsiCur + 2) = LUTI[int(*(pHsiCur + 2))];
-        double h, s, i;
-        h = *(pHsiCur) * 2 * PI;
-        s = *(pHsiCur + 1);
-        i = *(pHsiCur + 2);
-        if (h >= 0 && h < 2 / 3 * PI)
-        {
-            *(pCur) = i * (1 + s * cos(h) / (cos(PI / 3 - h) + 1e-9));
-            *(pCur + 2) = i * (1 - s);
-            *(pCur + 1) = 3 * i - (*(pCur) + *(pCur + 2));
-        }
-        else if (h >= 2 / 3 * PI && h < 4 / 3 * PI)
-        {
-            h = h - 2 * PI / 3;
-            *(pCur) = i * (1 - s);
-            *(pCur + 1) = i * (1 + s * cos(h) / (cos(PI / 3 - h) + 1e-9));
-            *(pCur + 2) = 3 * i - (*(pCur) + *(pCur + 1));
-        }
-        else if (h >= 4 / 3 * PI && h <= 2 * PI)
-        {
-
-            h = h - 4 * PI / 3;
-            *(pCur + 1) = i * (1 - s);
-            *(pCur + 2) = i * (1 + s * cos(h) / (cos(PI / 3 - h) + 1e-9));
-            *(pCur) = 3 * i - (*(pCur + 1) + *(pCur + 2));
-        }
-    }
+    delete pImg;
 }
 
 
