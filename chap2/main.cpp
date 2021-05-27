@@ -11,8 +11,9 @@ void t2()
 {
     BmpTool tool;
     tool.read24BitBmp2Img("../resource/H0201Rgb.bmp");
-    tool.rgb2gry2();    // 使用查找表
-//    tool.rgb2gry1();  // 不使用查找表
+    BYTE *pResImg = new BYTE[tool.getWidth() * tool.getHeight()];
+    tool.rgb2gry2(pResImg);    // 使用查找表
+//    tool.rgb2gry1(pResImg);  // 不使用查找表
     tool.write8BitImg2Bmp("../resource/H0201Gry.bmp");
 }
 
@@ -55,7 +56,8 @@ void t7()
 {
     BmpTool tool;
     short int *p14Img = tool.read14bitRaw2Img("../resource/H0204IR14bit.raw", 640, 480);
-    tool.histogramEqualize(p14Img);
+    BYTE *pResImg = new BYTE[tool.getWidth() * tool.getHeight()];
+    tool.histogramEqualize(p14Img, pResImg);
     tool.write8BitImg2Bmp("../output/H0204IR8bit.bmp");
 }
 

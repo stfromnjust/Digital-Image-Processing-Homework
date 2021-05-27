@@ -29,9 +29,9 @@ public:
 
     bool write24BitImg2Bmp(const char *filename);
 
-    void rgb2gry1();
+    void rgb2gry1(BYTE *pResImg);
 
-    void rgb2gry2();
+    void rgb2gry2(BYTE *pResImg);
 
     void linearStretch(double k, double b);
 
@@ -43,11 +43,15 @@ public:
 
     void histogramEqualize();
 
-    void histogramEqualize(const short int* p14Img);
+    void histogramEqualize(const short int* p14Img, BYTE *pResImg);
 
     void histogramEqualizeRgb();
 
 //    void histogramEqualizeRgb1();
+
+    int getWidth() {return width;}
+
+    int getHeight() {return height;}
 
 
 

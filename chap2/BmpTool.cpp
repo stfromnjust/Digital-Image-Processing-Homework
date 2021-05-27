@@ -261,9 +261,9 @@ bool BmpTool::write24BitImg2Bmp(const char *filename)
     return Suc;
 }
 
-void BmpTool::rgb2gry1()
+void BmpTool::rgb2gry1(BYTE *pResImg)
 {
-    BYTE *pCur, *pEnd = pImg + width * height * 3, *pResImg = new BYTE[width * height];
+    BYTE *pCur, *pEnd = pImg + width * height * 3;
     BYTE *pRet = pResImg;
     for (pCur = pImg; pCur < pEnd; pCur += 3, pResImg++)
     {
@@ -276,7 +276,7 @@ void BmpTool::rgb2gry1()
     pImg = pRet;
 }
 
-void BmpTool::rgb2gry2()
+void BmpTool::rgb2gry2(BYTE *pResImg)
 {
     int LUTRed[256], LUTGreen[256], LUTBlue[256];
     for (int g = 0; g < 256; g++)
@@ -285,7 +285,7 @@ void BmpTool::rgb2gry2()
         LUTGreen[g] = 587 * g;
         LUTBlue[g] = 114 * g;
     }
-    BYTE *pCur, *pEnd = pImg + width * height * 3, *pResImg = new BYTE[width * height];
+    BYTE *pCur, *pEnd = pImg + width * height * 3;
     BYTE *pRet = pResImg;
     for (pCur = pImg; pCur < pEnd; pCur += 3, pResImg++)
     {
@@ -373,10 +373,9 @@ void BmpTool::histogramEqualize()
     }
 }
 
-void BmpTool::histogramEqualize(const short int *p14Img)
+void BmpTool::histogramEqualize(const short int *p14Img, BYTE *pResImg)
 {
     int histogram[1 << 14], LUT[1 << 14], A, i, g;
-    pImg = new BYTE[width * height];
     // get Histogram
     memset(histogram, 0, sizeof(int) * (1 << 14));
     for (i = 0; i < width * height; i++)
@@ -392,8 +391,9 @@ void BmpTool::histogramEqualize(const short int *p14Img)
     }
     for (i = 0; i < width * height; i++)
     {
-        pImg[i] = LUT[*(p14Img + i)];
+        pResImg[i] = LUT[*(p14Img + i)];
     }
+    pImg = pResImg;
 }
 
 void BmpTool::histogramEqualizeRgb()
