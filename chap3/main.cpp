@@ -57,7 +57,16 @@ void t6()
     int width, height;
     BYTE *pImg;
     pImg = read8BitBmp2Img("../resource/H0302Gry.bmp", &width, &height);
-    invertImgSSE(pImg, width, height);
+    clock_t start = clock(), end;
+    for (int i = 0; i < 10001; i++)
+    {
+        invertImg(pImg, width, height);
+//        invertImgMMX(pImg, width, height);
+//        invertImgSSE(pImg, width, height);
+//        invertImgAVX(pImg, width, height);
+    }
+    end = clock();
+    printf("Time: %d ms\n", end - start);
     write8BitImg2Bmp(pImg, width, height, "../output/H0302Gry_t6.bmp");
 }
 
@@ -67,7 +76,7 @@ void t7()
     BYTE *pImg, *pResImg;
     pImg = read8BitBmp2Img("../resource/H0302Gry.bmp", &width, &height);
     pResImg = new BYTE[width * height]();
-    double avgCmpTimes = medianFilter(pImg, width, height, 21, 1, pResImg);
+    double avgCmpTimes = medianFilter(pImg, width, height, 21,21, pResImg);
     write8BitImg2Bmp(pResImg, width, height, "../output/H0302Gry_t7.bmp");
     printf("avgCmpTimes: %.2f\n", avgCmpTimes);
     delete [] pResImg;
@@ -86,13 +95,9 @@ void t12()
     int gaussianSize = 2 * lround(3 * std) + 1;
     int *pGaussian = new int [gaussianSize];
     getGaussianFilter(std, pGaussian);
-//    for (int i = 0; i < gaussianSize; i++)
-//    {
-//        printf("%d\t", pGaussian[i]);
-//    }
-    gaussianFilter(pImg, width, height, pGaussian, gaussianSize, pTemp1Img);
+    gaussianFilter1D(pImg, width, height, pGaussian, gaussianSize, pTemp1Img);
     transposeImg(pTemp1Img, width, height, pTemp2Img);
-    gaussianFilter(pTemp2Img, width, height, pGaussian, gaussianSize, pTemp3Img);
+    gaussianFilter1D(pTemp2Img, width, height, pGaussian, gaussianSize, pTemp3Img);
     transposeImg(pTemp3Img, width, height, pResImg);
     write8BitImg2Bmp(pResImg, width, height, "../output/H0303Gry_t12.bmp");
     delete [] pGaussian;
@@ -102,26 +107,14 @@ void t12()
     delete [] pResImg;
 }
 
-void testTranspose()
-{
-    int width, height;
-    BYTE *pImg, *pResImg;
-    pImg = read8BitBmp2Img("../resource/H0303Gry.bmp", &width, &height);
-    pResImg = new BYTE[width * height]();
-    transposeImg(pImg, width, height, pResImg);
-    write8BitImg2Bmp(pResImg, width, height, "../output/H0303Gry_transpose.bmp");
-    delete [] pResImg;
-}
 
 int main(void)
 {
-//    test();
 //    t3();
 //    t4();
 //    t5();
-    t6();
-//    t7();
+//    t6();
+    t7();
 //    t12();
-//    testTranspose();
     return 0;
 }

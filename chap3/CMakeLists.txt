@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 11)
 
 include_directories(.)
 
+add_compile_options(-march=native)
+
 add_executable(chap3
         bmpFile.h
         bmpFile.cpp

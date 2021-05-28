@@ -499,6 +499,27 @@ double medianFilter(BYTE *pImg, int width, int height, int m, int n, BYTE *pResI
     return dbgCmpTimes * 1.0 / ((width - halfx * 2) * (height - halfy * 2));
 }
 
+void invertImg(BYTE *pImg, int width, int height)
+{
+    BYTE *pCur, *pEnd = pImg + width * height;
+    for (pCur = pImg; pCur < pEnd; pCur++)
+    {
+        *pCur = ~(*pCur);
+    }
+}
+
+void invertImgMMX(BYTE *pImg, int width, int height)
+{
+    BYTE *pCur, *pEnd = pImg + width * height;
+    for (pCur = pImg; pCur < pEnd; pCur += 8)
+    {
+        __m64 src;
+        src = *((__m64 *)pCur);
+        src = _mm_andnot_si64(src, _mm_set1_pi8(~0));
+        *(__m64 *)pCur = src;
+    }
+}
+
 void invertImgSSE(BYTE *pImg, int width, int height)
 {
     BYTE * pCur, *pEnd = pImg + width * height;
@@ -506,8 +527,20 @@ void invertImgSSE(BYTE *pImg, int width, int height)
     {
         __m128i src, dst;
         src = _mm_loadu_si128((__m128i *)pCur);
-        dst = _mm_andnot_si128(src, _mm_set1_epi8(255));
+        dst = _mm_andnot_si128(src, _mm_set1_epi8(~0));
         _mm_storeu_si128((__m128i *)(pCur), dst);
+    }
+}
+
+void invertImgAVX(BYTE *pImg, int width, int height)
+{
+    BYTE * pCur, *pEnd = pImg + width * height;
+    for (pCur = pImg; pCur < pEnd; pCur += 32)
+    {
+        __m256i src, dst;
+        src = _mm256_loadu_si256((__m256i *)pCur);
+        dst = _mm256_andnot_si256(src, _mm256_set1_epi8(~0));
+        _mm256_storeu_si256((__m256i *)(pCur), dst);
     }
 }
 
@@ -516,17 +549,25 @@ void getGaussianFilter(double std, int *pGaussian)
     const double PI = 3.1415926;
     int halfSize = lround(3 * std);  // 上取整
     double val = 0.0;
+    double sum = (1 / (sqrt(2 * PI) * std));
+    double temp = sum;
+    for (int i = 1; i <= halfSize; i++)
+    {
+        val = temp * exp((-(i*i)) / (2 * std * std));
+        sum += 2 * val;
+    }
     for (int i = 0; i <= halfSize; i++)
     {
-        val = (1 / (sqrt(2 * PI) * std)) * exp((-(i*i)) / (2 * std * std));
-        pGaussian[halfSize - i] = pGaussian[halfSize + i] = int(val * 1024);
+        val = temp * exp((-(i*i)) / (2 * std * std));
+        pGaussian[halfSize - i] = pGaussian[halfSize + i] = int(val / sum * 1024);
     }
 }
 
-void gaussianFilter(BYTE *pImg, int width, int height, int *pGaussian, int m, BYTE *pResImg)
+void gaussianFilter1D(BYTE *pImg, int width, int height, int *pGaussian, int m, BYTE *pResImg)
 {
     // 横向高斯滤波
     BYTE *pCur, *pRes;
+    int *pGau = pGaussian;
     int halfx = m / 2;
     int x, y, x1, x2, i;
     for (y = 0, pCur = pImg, pRes = pResImg; y < height; y++, pCur += width)
@@ -534,9 +575,10 @@ void gaussianFilter(BYTE *pImg, int width, int height, int *pGaussian, int m, BY
         pRes += halfx;
         for (x = halfx, x1 = 0, x2 = m; x < width - halfx; x++, x1++, x2++, pRes++)
         {
-            for (i = x1; i < x2; i++)
+            pGau = pGaussian;
+            for (i = x1; i < x2; i++, pGau++)
             {
-                *pRes += (*(pCur + i) * pGaussian[i - x1]) >> 10;
+                *pRes += (*(pCur + i) * (*pGau)) >> 10;
             }
         }
         pRes += halfx;

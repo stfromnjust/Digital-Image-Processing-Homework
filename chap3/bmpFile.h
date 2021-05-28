@@ -13,7 +13,9 @@
 #include <time.h>
 #include <algorithm>
 #include <iostream>
+#include <mmintrin.h>
 #include <nmmintrin.h>
+#include <immintrin.h>
 
 BYTE *read8BitBmp2Img(const char *filename, int *width, int *height);
 
@@ -41,11 +43,17 @@ void meanFilterBy1DIntegral(int *pIntegral, int width, int height, int m, BYTE *
 
 double medianFilter(BYTE *pImg, int width, int height, int m, int n, BYTE *pResImg);
 
+void invertImg(BYTE *pImg, int width, int height);
+
+void invertImgMMX(BYTE *pImg, int width, int height);
+
 void invertImgSSE(BYTE *pImg, int width, int height);
+
+void invertImgAVX(BYTE *pImg, int width, int height);
 
 void getGaussianFilter(double std, int *pGaussian);
 
-void gaussianFilter(BYTE *pImg, int width, int height, int *pGaussian, int m, BYTE *pResImg);
+void gaussianFilter1D(BYTE *pImg, int width, int height, int *pGaussian, int m, BYTE *pResImg);
 
 void transposeImg(BYTE *pImg, int width, int height, BYTE *pResImg);
 
