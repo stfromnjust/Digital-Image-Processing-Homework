@@ -15,6 +15,7 @@ void t2()
     tool.rgb2gry2(pResImg);    // 使用查找表
 //    tool.rgb2gry1(pResImg);  // 不使用查找表
     tool.write8BitImg2Bmp("../resource/H0201Gry.bmp");
+    delete [] pResImg
 }
 
 void t3(double trgBright, double trgContrast)
