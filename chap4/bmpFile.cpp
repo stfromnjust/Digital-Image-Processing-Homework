@@ -670,7 +670,7 @@ void getTextPos(BYTE *pImg, int width, int height, int *pIntegral, int para1, in
     int halfx = para2 + para1 / 2, halfy = halfx;
     BYTE *pCur;
     int *pCurIrg;
-    int sum1, sum2, sum3, sum4;
+    int sC, sL, sU, sR;
     int curVal, maxVal = INT_MIN;
     int offset = para1 / 2;
 
@@ -680,32 +680,23 @@ void getTextPos(BYTE *pImg, int width, int height, int *pIntegral, int para1, in
         pCurIrg += halfx + 1;
         for (x = halfx + 1; x < width - halfx; x++, pCur++, pCurIrg++)
         {
-            sum1 = *(pCurIrg + offset + offset * width) + *(pCurIrg - offset - 1 - (offset + 1) * width);
-            sum1 -= *(pCurIrg - offset - 1 + offset * width) + *(pCurIrg + offset - (offset + 1) * width);
+            sC = *(pCurIrg + offset + offset * width) + *(pCurIrg - offset - 1 - (offset + 1) * width);
+            sC -= *(pCurIrg - offset - 1 + offset * width) + *(pCurIrg + offset - (offset + 1) * width);
 
-            sum2 = *(pCurIrg - offset - 1 + offset * width) +
-                   *(pCurIrg - offset - 1 + offset * width - para2 - para1 * width);
-            sum2 -= *(pCurIrg - offset - 1 + offset * width - para2) +
-                    *(pCurIrg - offset - 1 + offset * width - para1 * width);
+            sL = *(pCurIrg - offset - 1 + offset * width) +
+                 *(pCurIrg - offset - 1 + offset * width - para2 - para1 * width);
+            sL -= *(pCurIrg - offset - 1 + offset * width - para2) +
+                  *(pCurIrg - offset - 1 + offset * width - para1 * width);
 
-            sum3 = *(pCurIrg + offset - (offset + 1) * width) +
-                   *(pCurIrg + offset - (offset + 1) * width - para1 - para2 * width);
-            sum3 -= *(pCurIrg + offset - (offset + 1) * width - para1) +
-                    *(pCurIrg + offset - (offset + 1) * width - para2 * width);
+            sU = *(pCurIrg + offset - (offset + 1) * width) +
+                 *(pCurIrg + offset - (offset + 1) * width - para1 - para2 * width);
+            sU -= *(pCurIrg + offset - (offset + 1) * width - para1) +
+                  *(pCurIrg + offset - (offset + 1) * width - para2 * width);
 
-            sum4 = *(pCurIrg + offset + para2 + offset * width) + *(pCurIrg + offset - (offset + 1) * width);
-            sum4 -= *(pCurIrg + offset - (offset + 1) * width + para1 * width) +
-                    *(pCurIrg + offset - (offset + 1) * width + para2);
-#ifdef Debug
-            if (y == 106 && x == 25)
-            {
-                printf("sum1: %d, sum2: %d, sum3: %d, sum4: %d\n");
-            }
-#endif
-            curVal = sum1 - sum2 - sum3 - sum4;
-#ifdef Debug
-            printf("(%d, %d), %d\n", y, x, curVal);
-#endif
+            sR = *(pCurIrg + offset + para2 + offset * width) + *(pCurIrg + offset - (offset + 1) * width);
+            sR -= *(pCurIrg + offset - (offset + 1) * width + para1 * width) +
+                  *(pCurIrg + offset - (offset + 1) * width + para2);
+            curVal = sC - sL - sU - sR;
             if (curVal > maxVal)
             {
                 maxVal = curVal;
@@ -902,7 +893,5 @@ void doubleThresholdLink(BYTE *pImg, int width, int height, int step, BYTE lowTh
         }
         pCur += step + 1;
     }
-
-
 }
 
