@@ -370,6 +370,7 @@ void prewittOp(BYTE *pImg, int width, int height, BYTE *pResImg)
     int x, y;
     int d90, d45, d0, d135;
     int v1, v2;
+    int leftUp, up, rightUp, left, right, leftDown, down, rightDown;
     memset(pResImg, 0, width);  //  首行不做
     for (y = 1, pCur = pImg + width, pRes = pResImg + width; y < height - 1; y++)
     {
@@ -377,17 +378,26 @@ void prewittOp(BYTE *pImg, int width, int height, BYTE *pResImg)
         pCur++;
         for (x = 1; x < width - 1; x++, pCur++, pRes++)
         {
-            d90 = *(pCur - 1 - width) + *(pCur - width) + *(pCur + 1 - width);
-            d90 -= *(pCur - 1 + width) + *(pCur + width) + *(pCur + 1 + width);
+            leftUp = *(pCur - 1 - width);
+            up = *(pCur - width);
+            rightUp = *(pCur + 1 - width);
+            left = *(pCur - 1);
+            right = *(pCur + 1);
+            leftDown = *(pCur - 1 + width);
+            down = *(pCur + width);
+            rightDown = *(pCur + 1 + width);
 
-            d45 = *(pCur - width) + *(pCur + 1 - width) + *(pCur + 1);
-            d45 -= *(pCur - 1) + *(pCur - 1 + width) + *(pCur + width);
+            d90 = leftUp + up + rightUp;
+            d90 -= leftDown + down + rightDown;
 
-            d0 = *(pCur - 1 - width) + *(pCur - 1) + *(pCur - 1 + width);
-            d0 -= *(pCur + 1 - width) + *(pCur + 1) + *(pCur + 1 + width);
+            d45 = up + rightUp + right;
+            d45 -= left + leftDown + down;
 
-            d135 = *(pCur - 1 - width) + *(pCur - width) + *(pCur - 1);
-            d135 -= *(pCur + 1) + *(pCur + width) + *(pCur + 1 + width);
+            d0 = leftUp + left + leftDown;
+            d0 -= rightUp + right + rightDown;
+
+            d135 = leftUp + up + left;
+            d135 -= right + down + rightDown;
 
             v1 = max(abs(d90), abs(d45));
             v2 = max(abs(d0), abs(d135));
@@ -405,6 +415,7 @@ void robinsonOp(BYTE *pImg, int width, int height, BYTE *pResImg)
     int x, y;
     int da, db, dc, dd, de, df, dg, dh;
     int v1, v2, v3, v4, v5, v6;
+    int leftUp, up, rightUp, left, right, leftDown, down, rightDown;
     memset(pResImg, 0, width);  //  首行不做
     for (y = 1, pCur = pImg + width, pRes = pResImg + width; y < height - 1; y++)
     {
@@ -412,29 +423,38 @@ void robinsonOp(BYTE *pImg, int width, int height, BYTE *pResImg)
         pCur++;
         for (x = 1; x < width - 1; x++, pCur++, pRes++)
         {
-            da = *(pCur - 1 - width) + *(pCur - width) + *(pCur + 1 - width) + *(pCur + 1) + *(pCur + 1 + width);
-            da -= *(pCur - 1) + 2 * *(pCur) + *(pCur - 1 + width) + *(pCur + width);
+            leftUp = *(pCur - 1 - width);
+            up = *(pCur - width);
+            rightUp = *(pCur + 1 - width);
+            left = *(pCur - 1);
+            right = *(pCur + 1);
+            leftDown = *(pCur - 1 + width);
+            down = *(pCur + width);
+            rightDown = *(pCur + 1 + width);
 
-            db = *(pCur - width) + *(pCur + 1 - width) + *(pCur + 1) + *(pCur + width) + *(pCur + 1 + width);
-            db -= *(pCur - 1 - width) + *(pCur - 1) + 2 * *(pCur) + *(pCur - 1 + width);
+            da = leftUp + up + rightUp + right + rightDown;
+            da -= left + 2 * *(pCur) + leftDown + down;
 
-            dc = *(pCur + 1 - width) + *(pCur + 1) + *(pCur - 1 + width) + *(pCur + width) + *(pCur + 1 + width);
-            dc -= *(pCur - 1 - width) + *(pCur - width) + *(pCur - 1) + 2 * *(pCur);
+            db = up + rightUp + right + down + rightDown;
+            db -= leftUp + left + 2 * *(pCur) + leftDown;
 
-            dd = *(pCur - 1) + *(pCur + 1) + *(pCur - 1 + width) + *(pCur + width) + *(pCur + 1 + width);
-            dd -= *(pCur - 1 - width) + *(pCur - width) + *(pCur + 1 - width) + 2 * *(pCur);
+            dc = rightUp + right + leftDown + down + rightDown;
+            dc -= leftUp + up + left + 2 * *(pCur);
 
-            de = *(pCur - 1 - width) + *(pCur - 1) + *(pCur - 1 + width) + *(pCur + width) + *(pCur + 1 + width);
-            de -= *(pCur - width) + *(pCur + 1 - width) + 2 * *(pCur) + *(pCur + 1);
+            dd = left + right + leftDown + down + rightDown;
+            dd -= leftUp + up + rightUp + 2 * *(pCur);
 
-            df = *(pCur - 1 - width) + *(pCur - width) + *(pCur - 1) + *(pCur - 1 + width) + *(pCur + width);
-            df -= *(pCur + 1 - width) + 2 * *(pCur) + *(pCur + 1) + *(pCur + 1 + width);
+            de = leftUp + left + leftDown + down + rightDown;
+            de -= up + rightUp + 2 * *(pCur) + right;
 
-            dg = *(pCur - 1 - width) + *(pCur - width) + *(pCur + 1 - width) + *(pCur - 1) + *(pCur - 1 + width);
-            dg -= 2 * *(pCur) + *(pCur + 1) + *(pCur + width) + *(pCur + 1 + width);
+            df = leftUp + up + left + leftDown + down;
+            df -= rightUp + 2 * *(pCur) + right + rightDown;
 
-            dh = *(pCur - 1 - width) + *(pCur - width) + *(pCur + 1 - width) + *(pCur - 1) + *(pCur + 1);
-            dh -= 2 * *(pCur) + *(pCur - 1 + width) + *(pCur + width) + *(pCur + 1 + width);
+            dg = leftUp + up + rightUp + left + leftDown;
+            dg -= 2 * *(pCur) + right + down + rightDown;
+
+            dh = leftUp + up + rightUp + left + right;
+            dh -= 2 * *(pCur) + leftDown + down + rightDown;
 
             v1 = max(abs(da), abs(db));
             v2 = max(abs(dc), abs(dd));
@@ -448,6 +468,65 @@ void robinsonOp(BYTE *pImg, int width, int height, BYTE *pResImg)
         pCur++;
     }
     memset(pRes, 0, width); // 末行不做
+}
+
+void kirschOp(BYTE *pImg, int width, int height, BYTE *pResImg)
+{
+    BYTE *pCur, *pRes;
+    int x, y;
+    int da, db, dc, dd, de, df, dg, dh;
+    int v1, v2, v3, v4, v5, v6;
+    int leftUp, up, rightUp, left, right, leftDown, down, rightDown;
+    memset(pResImg, 0, width);
+    for (y = 1, pCur = pImg + width, pRes = pResImg + width; y < height - 1; y++)
+    {
+        *(pRes++) = 0;
+        pCur++;
+        for (x = 1; x < width - 1; x++, pCur++, pRes++)
+        {
+            leftUp = *(pCur - 1 - width);
+            up = *(pCur - width);
+            rightUp = *(pCur + 1 - width);
+            left = *(pCur - 1);
+            right = *(pCur + 1);
+            leftDown = *(pCur - 1 + width);
+            down = *(pCur + width);
+            rightDown = *(pCur + 1 + width);
+            da = 5 * (leftUp + up + rightUp);
+            da -= 3 * (left + right + leftDown + down + rightDown);
+
+            db = 5 * (up + rightUp + right);
+            db -= 3 * (leftUp + left + leftDown + down + rightDown);
+
+            dc = 5 * (rightUp + right + rightDown);
+            dc -= 3 * (leftUp + up + left + leftDown + down);
+
+            dd = 5 * (right + down + rightDown);
+            dd -= 3 * (leftUp + up + rightUp + left + leftDown);
+
+            de = 5 * (leftDown + down + rightDown);
+            de -= 3 * (leftUp + up + rightUp + left + right);
+
+            df = 5 * (left + leftDown + down);
+            df -= 3 * (leftUp + up + rightUp + right + rightDown);
+
+            dg = 5 * (leftUp + left + leftDown);
+            dg -= 3 * (up + rightUp + right + down + rightDown);
+
+            dh = 5 * (leftUp + up + left);
+            dh -= 3 * (rightUp + right + leftDown + down + rightDown);
+
+            v1 = max(abs(da), abs(db));
+            v2 = max(abs(dc), abs(dd));
+            v3 = max(abs(de), abs(df));
+            v4 = max(abs(dg), abs(dh));
+            v5 = max(v1, v2);
+            v6 = max(v3, v4);
+            *pRes = min(255, max(v5, v6));
+        }
+        *(pRes++) = 0;
+        pCur++;
+    }
 }
 
 void shenJunOp(BYTE *pImg, BYTE *pTempImg, int width, int height, double a0, BYTE *pResImg)
@@ -530,7 +609,6 @@ void sj_sobelOp(BYTE *pImg, BYTE *pTempImg,
     sobelOp(pImg, width, height, pTempImg);
     for (int i = 0; i < width * height; i++)
     {
-//        首先满足二阶导数为0, 再一阶导数大于threshold
         *(pResImg + i) = (pResImg[i] && (pTempImg[i] > threshold)) * 255;
     }
 }
@@ -641,6 +719,20 @@ void getTextPos(BYTE *pImg, int width, int height, int *pIntegral, int para1, in
     printf("maxVal: %d\n", maxVal);
 }
 
+void cannyOp(BYTE *pImg, int width, int height,
+             double std, int *pGradDir,
+             BYTE lowThreshold, BYTE highThreshold,
+             BYTE *pTempImg)
+{
+    int step = lround(3 * std);
+    gaussianFilter2D(pImg, width, height, std, pTempImg);
+    memset(pImg, 0, width * height * sizeof(BYTE));
+    sobelOp(pTempImg, width, height, step, pGradDir, pImg);
+    nonMaximumSuppression(pImg, width, height, step, pGradDir);
+    doubleThreshold(pImg, width, height, step, lowThreshold, highThreshold);
+    doubleThresholdLink(pImg, width, height, step, lowThreshold, highThreshold);
+}
+
 void getGaussianFilter(double std, int *pGaussian)
 {
     int halfSize = lround(3 * std);  // 上取整
@@ -722,7 +814,7 @@ void nonMaximumSuppression(BYTE *pImg, int width, int height, int step, int *pGr
         pDir += step + 1;
         for (x = step + 1; x < width - 1 - step; x++, pCur++, pDir++)
         {
-            if (*pDir ==  1)    //  水平
+            if (*pDir == 1)    //  水平
             {
                 if (!(*pCur > *(pCur - 1) && *pCur > *(pCur + 1)))
                 {
@@ -768,14 +860,14 @@ void doubleThreshold(BYTE *pImg, int width, int height, int step, BYTE lowThresh
         pCur += step + 1;
         for (x = step + 1; x < width - 1 - step; x++, pCur++)
         {
-           if (*pCur < lowThreshold)
-           {
-               *pCur = 0;
-           }
-           else if (*pCur > highThreshold)
-           {
-               *pCur = 255;
-           }
+            if (*pCur < lowThreshold)
+            {
+                *pCur = 0;
+            }
+            else if (*pCur > highThreshold)
+            {
+                *pCur = 255;
+            }
         }
         pCur += step + 1;
     }
@@ -796,8 +888,8 @@ void doubleThresholdLink(BYTE *pImg, int width, int height, int step, BYTE lowTh
             if (*pCur >= lowThreshold && *pCur < 255)
             {
                 if (*(pCur - 1 - width) == 255 || *(pCur - width) == 255 || *(pCur + 1 - width) == 255 ||
-                *(pCur - 1) == 255 || *(pCur + 1) == 255 || *(pCur - 1 + width) == 255 ||
-                *(pCur + width) == 255 || *(pCur + 1 + width) == 255)
+                    *(pCur - 1) == 255 || *(pCur + 1) == 255 || *(pCur - 1 + width) == 255 ||
+                    *(pCur + width) == 255 || *(pCur + 1 + width) == 255)
                 {
                     *pCur = 255;
                     doubleThresholdLink(pImg, width, height, step, lowThreshold, highThreshold);

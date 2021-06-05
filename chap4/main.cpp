@@ -16,13 +16,14 @@ void t5()
 //    gradientOp(pImg, width, height, pResImg);
 //    robertOp(pImg, width, height, pResImg);
 //    sobelOp(pImg, width, height, pResImg);
-//    prewittOp(pImg, width, height, pResImg);
+    prewittOp(pImg, width, height, pResImg);
 //    robinsonOp(pImg, width, height, pResImg);
+//    kirschOp(pImg, width, height, pResImg);
     BYTE *pTempImg = new BYTE[width * height];
 //    shenJunOp(pImg, pTempImg, width, height, 0.5, pResImg);
-    sj_sobelOp(pImg, pTempImg, width, height, 0.5, 64, pResImg);
+//    sj_sobelOp(pImg, pTempImg, width, height, 0.5, 64, pResImg);
     invertImg(pResImg, width, height);
-    write8BitImg2Bmp(pResImg, width, height, "../output/H0401Gry_sj_sobel.bmp");
+    write8BitImg2Bmp(pResImg, width, height, "../output/H0401Gry_prewitt.bmp");
     delete [] pTempImg; // if needed
     delete [] pResImg;
 }
@@ -57,6 +58,7 @@ void t6_2(const string& imgName, int *resX, int *resY, int para1, int para2)
     int *pIntegral = new int [width * height];
     get2DIntegral(pImg, width, height, pIntegral);
     getTextPos(pImg, width, height, pIntegral, para1, para2, resX, resY);
+    delete [] pIntegral;
 }
 
 void t6(const string& imgName, int k, int para1, int para2)
@@ -81,22 +83,13 @@ void t7()
 {
     int width, height;
     BYTE *pImg;
-    pImg = read8BitBmp2Img("../resource/lena512.bmp", &width, &height);
-    BYTE *pResImg = new BYTE[width * height]();
-    double std = 1.4;
-    int step = lround(3 * std);
-    gaussianFilter2D(pImg, width, height, std, pResImg);
-    write8BitImg2Bmp(pResImg, width, height, "../output/lena512_step1.bmp");
-    memset(pImg, 0, width * height * sizeof(BYTE));
+    pImg = read8BitBmp2Img("../resource/H0401Gry.bmp", &width, &height);
+    BYTE *pTempImg = new BYTE[width * height]();
     int *pGradDir = new int [width * height]();
-    sobelOp(pResImg, width, height, step, pGradDir, pImg);
-    write8BitImg2Bmp(pImg, width, height, "../output/lena512_step2.bmp");
-    nonMaximumSuppression(pImg, width, height, step, pGradDir);
-    write8BitImg2Bmp(pImg, width, height, "../output/lena512_step3.bmp");
-    doubleThreshold(pImg, width, height, step, 50, 100);
-    write8BitImg2Bmp(pImg, width, height, "../output/lena512_step4.bmp");
-    doubleThresholdLink(pImg, width, height, step, 50, 100);
-    write8BitImg2Bmp(pImg, width, height, "../output/lena512_step5.bmp");
+    cannyOp(pImg, width, height, 1.4, pGradDir, 50, 100, pTempImg);
+    write8BitImg2Bmp(pImg, width, height, "../output/H0401Gry_canny.bmp");
+    delete [] pGradDir;
+    delete [] pTempImg;
 }
 
 int main()
@@ -104,11 +97,6 @@ int main()
 //    t5();
 //    t6("H0402Gry",4, 116, 32);
     t7();
-//    Mat src = imread("../resource/H0401Gry.bmp");
-//    Mat dst;
-//    Canny(src, dst, 70, 100, 3);
-//    imshow("canny", dst);
-//    waitKey(0);
     return 0;
 }
 

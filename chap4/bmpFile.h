@@ -36,6 +36,8 @@ void prewittOp(BYTE *pImg, int width, int height, BYTE *pResImg); // prewitt算�
 
 void robinsonOp(BYTE *pImg, int width, int height, BYTE *pResImg); // robinson算子
 
+void kirschOp(BYTE *pImg, int width, int height, BYTE *pResImg);    //  kirsch算子
+
 void shenJunOp(BYTE *pImg, BYTE *pTempImg, int width, int height, double a0, BYTE *pResImg);   // Shen Jun算子
 
 void sj_sobelOp(BYTE *pImg, BYTE *pTempImg,
@@ -48,6 +50,8 @@ void get2DIntegral(BYTE *pImg, int width, int height, int *pIntegral);  // 二�
 
 void getTextPos(BYTE *pImg, int width, int height, int *pIntegral, int para1, int para2, int *resX, int *resY);
 
+void cannyOp(BYTE *pImg, int width, int height, double std, int *pGradDir, BYTE lowThreshold, BYTE highThreshold, BYTE *pTempImg);
+
 void getGaussianFilter(double std, int *pGaussian);
 
 void gaussianFilter1D(BYTE *pImg, int width, int height, int *pGaussian, int m, BYTE *pResImg);
@@ -55,8 +59,6 @@ void gaussianFilter1D(BYTE *pImg, int width, int height, int *pGaussian, int m, 
 void transposeImg(BYTE *pImg, int width, int height, BYTE *pResImg);
 
 void gaussianFilter2D(BYTE *pImg ,int width, int height, double std, BYTE *pResImg);
-
-void cannyOp(BYTE *pImg, int width, int height, BYTE *pResImg);
 
 void nonMaximumSuppression(BYTE *pImg, int width, int height, int step, int *pGradDir);
 
