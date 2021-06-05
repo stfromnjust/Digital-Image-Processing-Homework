@@ -57,4 +57,6 @@ void gaussianFilter1D(BYTE *pImg, int width, int height, int *pGaussian, int m, 
 
 void transposeImg(BYTE *pImg, int width, int height, BYTE *pResImg);
 
+void gaussianFilter2D(BYTE *pImg, int width, int height, double std, BYTE *pResImg);
+
 #endif //CHAP3_BMPFILE_H

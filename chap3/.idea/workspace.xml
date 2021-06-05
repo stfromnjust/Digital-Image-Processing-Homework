@@ -14,14 +14,23 @@
   <component name="ChangeListManager">
     <list default="true" id="63f3aef2-4b8f-4a4a-86c2-d557551fb8a2" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmpFile.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/bmpFile.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmpFile.h" beforeDir="false" afterPath="$PROJECT_DIR$/bmpFile.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/H0302Gry_t7.bmp" beforeDir="false" afterPath="$PROJECT_DIR$/output/H0302Gry_t7.bmp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/H0303Gry_t12.bmp" beforeDir="false" afterPath="$PROJECT_DIR$/output/H0303Gry_t12.bmp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/H0303Gry_transpose.bmp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/test.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/bmpFile.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../chap4/bmpFile.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/bmpFile.h" beforeDir="false" afterPath="$PROJECT_DIR$/../chap4/bmpFile.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../chap4/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/output/H0401Gry_gaussian.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/output/H0401Gry_step1.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/output/H0401Gry_step2.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/output/H0401Gry_step3.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/output/H0401Gry_step4.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/output/H0401Gry_step5.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/output/lena512_step1.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/output/lena512_step2.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/output/lena512_step3.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/output/lena512_step4.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chap4/output/lena512_step5.bmp" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +40,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -67,11 +76,6 @@
     <property name="settings.editor.selected.configurable" value="CMakeSettings" />
   </component>
   <component name="RunManager">
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="chap3" type="CMakeRunConfiguration" factoryName="Application" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="chap3" TARGET_NAME="chap3" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="chap3" RUN_TARGET_NAME="chap3">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -104,6 +108,7 @@
       <workItem from="1622181098902" duration="469000" />
       <workItem from="1622188651274" duration="3620000" />
       <workItem from="1622192546535" duration="4286000" />
+      <workItem from="1622879914831" duration="273000" />
     </task>
     <servers />
   </component>

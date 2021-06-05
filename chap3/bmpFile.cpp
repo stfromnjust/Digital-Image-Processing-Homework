@@ -587,18 +587,28 @@ void gaussianFilter1D(BYTE *pImg, int width, int height, int *pGaussian, int m, 
 
 void transposeImg(BYTE *pImg, int width, int height, BYTE *pResImg)
 {
-    BYTE *pCur, *pEnd = pImg + width * height, *pRes;
-    int x, x1;
-    for (pCur = pImg, pRes = pResImg, x = 0, x1 = 0; pCur < pEnd; pCur++, x1++)
+    BYTE *pCur, *pRes;
+    int x, y;
+    for (y = 0, pCur = pImg; y < height; y++)
     {
-        if (x1 == width)
+        pRes = pResImg + y;
+        for (x = 0; x < width; x++, pCur++, pRes += height)
         {
-            x++;
-            pRes = pResImg + x;
-            x1 = 0;
+            *pRes = *pCur;
         }
-        *pRes = *pCur;
-        pRes += width;
     }
+}
+
+void gaussianFilter2D(BYTE *pImg, int width, int height, double std, BYTE *pResImg)
+{
+    int gaussianSize = 2 * lround(3 * std) + 1;
+    int *pGaussian = new int[gaussianSize];
+    getGaussianFilter(std, pGaussian);
+    gaussianFilter1D(pImg, width, height, pGaussian, gaussianSize, pResImg);
+    transposeImg(pResImg, width, height, pImg);
+    memset(pResImg, 0, width * height * sizeof(BYTE));
+    gaussianFilter1D(pImg, height, width, pGaussian, gaussianSize, pResImg);
+    transposeImg(pResImg, height, width, pImg);
+    memcpy(pResImg, pImg, width * height);
 }
 

@@ -85,25 +85,11 @@ void t7()
 void t12()
 {
     int width, height;
-    BYTE *pImg, *pTemp1Img, *pTemp2Img, *pTemp3Img, *pResImg;
+    BYTE *pImg, *pResImg;
     pImg = read8BitBmp2Img("../resource/H0303Gry.bmp", &width, &height);
     pResImg = new BYTE[width * height]();
-    pTemp1Img = new BYTE[width * height]();
-    pTemp2Img = new BYTE[width * height]();
-    pTemp3Img = new BYTE[width * height]();
-    double std = 3.0;
-    int gaussianSize = 2 * lround(3 * std) + 1;
-    int *pGaussian = new int [gaussianSize];
-    getGaussianFilter(std, pGaussian);
-    gaussianFilter1D(pImg, width, height, pGaussian, gaussianSize, pTemp1Img);
-    transposeImg(pTemp1Img, width, height, pTemp2Img);
-    gaussianFilter1D(pTemp2Img, width, height, pGaussian, gaussianSize, pTemp3Img);
-    transposeImg(pTemp3Img, width, height, pResImg);
+    gaussianFilter2D(pImg, width, height, 3.0, pResImg);
     write8BitImg2Bmp(pResImg, width, height, "../output/H0303Gry_t12.bmp");
-    delete [] pGaussian;
-    delete [] pTemp1Img;
-    delete [] pTemp2Img;
-    delete [] pTemp3Img;
     delete [] pResImg;
 }
 
