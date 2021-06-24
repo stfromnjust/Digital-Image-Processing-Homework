@@ -494,7 +494,7 @@ void eraseABCLine(BYTE *pImg, int width, int height,
 }
 
 void getHoughCount_Line(int *x, int *y, int N,
-                          int maxRho, int *pCount)
+                        int maxRho, int *pCount)
 {
     memset(pCount, 0, sizeof(int) * (maxRho * 2 + 1) * 180);
     int theta, rho, sinVal, cosVal, i;
@@ -508,6 +508,23 @@ void getHoughCount_Line(int *x, int *y, int N,
         {
             rho = (x[i] * cosVal + y[i] * sinVal) >> 13;
             pCenter[rho]++;
+        }
+    }
+}
+
+void getHoughCount_Circle(int *x, int *y, int N,
+                          int r,
+                          int width, int height, int *pCount)
+{
+    int theta, cosVal, sinVal, i;
+    memset(pCount, 0, sizeof(int) * width * height);
+    for (theta = 0; theta < 360; theta++)
+    {
+        cosVal = int(cos(theta * PI / 180) * 2048);
+        sinVal = int(sin(theta * PI / 180) * 2048);
+        for (i = 0; i < N; i++)
+        {
+
         }
     }
 }
@@ -680,3 +697,111 @@ int getCircleY(BYTE *pImg, int width, int height, int *pCount)
     return bstY;
 }
 
+int traceContourRmw(BYTE *pImg, int width, int height,  // 二值图像
+                    int x0, int y0, // 轮廓起点
+                    bool isOuter,   //  是否是外轮廓
+                    BYTE *pChainCode,   //  链码序列
+                    int maxChainCodeNum    // 最长序列
+)
+{
+    static int dx[8] = {1, 1, 0, -1, -1, -1, 0, 1};
+    static int dy[8] = {0, -1, -1, -1, 0, 1, 1, 1};
+    static int initCode[8] = {7, 7, 1, 1, 3, 3, 5, 5};
+    int offset[8];
+    int i = 0, N = 0;
+    // 开始链码
+    int code, beginCode, prevCode, returnCode;
+    BYTE *pCur, *pBegin, *pCheck;
+    // 不同链码对应的偏移量
+    for (i = 0; i < 8; i++)
+    {
+        offset[i] = dy[i] * width + dx[i];
+    }
+    pCur = pBegin = pImg + width * y0 + x0;
+    // 黑色0: 背景, 白色255: 轮廓
+    if (isOuter) // 外轮廓
+    {
+        *(pCur - 1) = 1;
+        beginCode = 7;
+    }
+    else         // 内轮廓
+    {
+        *(pCur + 1) = 1;
+        beginCode = 3;
+    }
+    prevCode = beginCode;
+    do
+    {
+        // 将轮廓设为254
+        *pCur = 254;
+        // 这里遍历7个方向
+        // code 当前尝试方向  prevCode 上一步方向
+        for (i = 0, code = initCode[prevCode]; i < 7; i++, code = (code + 1) % 8)
+        {
+            pCheck = pCur + offset[code];
+            if (*pCheck < 2)    // 是背景
+            {
+                *pCheck = 1;
+            }
+            else    // 是轮廓
+            {
+                if (N < maxChainCodeNum)   // 记录方向
+                {
+                    pChainCode[N] = code;
+                    N++;
+                }
+                if (pCheck == pBegin)   // 回到开始点?
+                {
+                    returnCode = (code + 4) % 8;
+                    for (i = 0, code = initCode[beginCode]; i < 7; i++, code = (code + 1) % 8)
+                    {
+                        if (code == returnCode) break;
+                    }
+                    // 遍历没有用完的方向
+                    for (i = i + 1, code = (code + 1) % 8; i < 7; i++, code = (code + 1) % 8)
+                    {
+                        pCheck = pBegin + offset[code];
+                        if (*pCheck < 2)    // 是背景
+                        {
+                            *pCheck = 1;
+                        }
+                        else    // 是轮廓
+                        {
+                            if (N < maxChainCodeNum)   // 记录方向
+                            {
+                                pChainCode[N] = code;
+                                N++;
+                            }
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        pCur = pCheck;
+        prevCode = code;
+    } while (i < 7);
+    return N;
+}
+
+void drawContour(BYTE *pImg, int width,
+                 int x0, int y0,    // 轮廓起点
+                 BYTE *pChainCode, int N,    //  链码序列, 链码长度
+                 int color)
+{
+    static int dx[8] = {1, 1, 0, -1, -1, -1, 0, 1};
+    static int dy[8] = {0, -1, -1, -1, 0, 1, 1, 1};
+    int offset[8];
+    int i;
+    BYTE *pCur = pImg + y0 * width + x0;
+    for (i = 0; i < 8; i++)
+    {
+        offset[i] = dy[i] * width + dx[i];
+    }
+    for (i = 0; i < N; i++)
+    {
+        *pCur = color;
+        pCur += offset[pChainCode[i]];
+    }
+}

@@ -48,10 +48,18 @@ void t2_1()
         C = -bstRho;
         // 画出直线
         drawABCLine(pResImg, width, height, A, B, C, 200 + i);
+#ifdef MY_DEBUG
         write8BitImg2BmpMark(pResImg, width, height, ("../output/t2_1/H0602Bin_step" + to_string(i) + ".bmp").c_str());
+#endif
         // 擦去该直线附近的点
         eraseABCLine(pImg, width, height, A, B, C, 255);
     }
+    write8BitImg2BmpMark(pResImg, width, height, "../output/t2_1/H0602Bin_result.bmp");
+    // 释放空间
+    delete [] pCountImg;
+    delete [] pCount;
+    delete [] yIdx;
+    delete [] xIdx;
 }
 
 void t2_2()
@@ -96,8 +104,16 @@ void t2_2()
             bstRho = -bstRho;
             eraseCountImg(pCount, maxRho * 2 + 1, 180, &bstTheta, &bstRho, 10);
         }
+#ifdef MY_DEBUG
         write8BitImg2BmpMark(pImg, width, height, ("../output/t2_2/H0602Bin_step" + to_string(i) + ".bmp").c_str());
+#endif
     }
+    write8BitImg2BmpMark(pImg, width, height, "../output/t2_2/H0602Bin_result.bmp");
+    // 释放空间
+    delete [] pCountImg;
+    delete [] pCount;
+    delete [] yIdx;
+    delete [] xIdx;
 }
 
 void t2_3()
@@ -126,6 +142,7 @@ void t3_1()
     circleX = getCircleX(pImg, width, height, pCountX);
     circleY = getCircleY(pImg, width, height, pCountY);
 #ifdef MY_DEBUG
+    // 调试, 输出圆心位置, 获取直方图
     cout << "circleX: " << circleX << "\tcircleY: " << circleY << endl;
     getCountImg(pCountX, width, 1.0, pCountXImg, width, 100);
     getCountImg(pCountY, height, 1.0, pCountYImg, height, 100);
@@ -135,11 +152,57 @@ void t3_1()
 
 }
 
+void gen_test_img()
+{
+    int width = 8, height = 8;
+    int y, x;
+    BYTE *pImg = new BYTE[width * height];
+    // 全部设为白色
+    memset(pImg, 0, width * height);
+    int idx[26] = {9, 10, 11, 12, 13, 14,
+                   17, 21, 22,
+                   25, 29, 30,
+                   33, 34, 35, 36, 37, 38,
+                   41, 46,
+                   49, 50, 51, 52, 53, 54};
+    for (int i = 0; i < 26; i++)
+    {
+        pImg[idx[i]] = 255;
+    }
+    write8BitImg2Bmp(pImg, 8, 8, "../resource/Figtest_1.bmp");
+}
+
+void t4_test()
+{
+    int width, height, N;
+    BYTE *pImg = read8BitBmp2Img("../resource/Figtest_1.bmp", &width, &height);
+    BYTE *pChainCode = new BYTE[1000];
+    // 图像边框设为0, 方便处理
+    N = traceContourRmw(pImg, width, height, 1, 1, true, pChainCode, 1000);
+    for (int i = 0; i < N; i++)
+    {
+        printf("->%d", pChainCode[i]);
+    }
+    drawContour(pImg, width, 1, 1, pChainCode, N, 200);
+    write8BitImg2BmpMark(pImg, width, height, "../output/t4/Figtest_1.bmp");
+}
+
+
+
 int main(void)
 {
-//    t2_1();
-//    t2_2();
-    t3_1();
+    int repeatTimes = 1000;
+    clock_t start = clock(), end;
+    for (int i = 0; i < repeatTimes; i++)
+    {
+//        t2_1();   // Release: 4741ms
+//        t2_2();     // Release: 2588ms
+//        t3_1();
+//        gen_test_img();
+//        t4_test();
+    }
+    end = clock();
+    printf("Time: %d ms\n", end - start);
     return 0;
 }
 

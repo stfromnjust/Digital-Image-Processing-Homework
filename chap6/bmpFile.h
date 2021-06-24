@@ -40,10 +40,14 @@ void eraseABCLine(BYTE *pImg, int width, int height,
 void getHoughCount_Line(int *x, int *y, int N,
                           int maxRho, int *pCount);
 
+void getHoughCount_Circle(int *x, int *y, int N,
+                          int r,    // 已知半径r
+                          int width, int height, int *pCount);
+
 // 霍夫直线空间计数器
 void getCountImg(int *pCount, int width, int height, BYTE *pImg);
 
-// 分治法圆计数器
+// 分治法圆心位置计数器
 void getCountImg(int *pCount, int histSize,  // 一个X/Y对应直方图宽度
                  double maxScale,   // 最大直方图所占图片比例
                  BYTE *pImg, int width, int height);
@@ -58,5 +62,17 @@ int getCircleX(BYTE *pImg, int width, int height, int *pCount);
 
 int getCircleY(BYTE *pImg, int width, int height, int *pCount);
 
+//链码跟踪
+int traceContourRmw(BYTE *pImg, int width, int height,  // 二值图像
+                    int x0, int y0, // 轮廓起点
+                    bool isOuter,   //  是否是外轮廓
+                    BYTE *pChainCode,   //  链码序列
+                    int maxChainCodeNum    // 最长序列
+                    );
 
+// 可视化链码序列
+void drawContour(BYTE *pImg, int width,
+                 int x0, int y0,    // 轮廓起点
+                 BYTE *pChainCode, int N,    //  链码序列, 链码长度
+                 int color);
 #endif //CHAP6_BMPFILE_H
