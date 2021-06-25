@@ -1,5 +1,5 @@
 //
-// Created by 16337 on 2021/6/21 0021.
+// Created by 16337 on 2021/6/25 0025.
 //
 #include "bmpFile.h"
 
@@ -625,7 +625,9 @@ void eraseCountImg(int *pCount, int width, int height,
     }
 }
 
-int getCircleX(BYTE *pImg, int width, int height, int *pCount)
+int getCircleX(BYTE *pImg, int width, int height,
+               int *xIdx, int *yIdx, int *N,
+               int *pCount)
 {
     int x, y, x1 = 0, x2 = width - 1, maxCount = 0, bstX = 0;
     BYTE *pRow;
@@ -637,6 +639,9 @@ int getCircleX(BYTE *pImg, int width, int height, int *pCount)
             if (!pRow[x])
             {
                 x1 = x;
+                xIdx[*N] = x;
+                yIdx[*N] = y;
+                (*N)++;
                 break;
             }
         }
@@ -645,6 +650,9 @@ int getCircleX(BYTE *pImg, int width, int height, int *pCount)
             if (!pRow[x])
             {
                 x2 = x;
+                xIdx[*N] = x;
+                yIdx[*N] = y;
+                (*N)++;
                 break;
             }
         }
@@ -661,7 +669,9 @@ int getCircleX(BYTE *pImg, int width, int height, int *pCount)
     return bstX;
 }
 
-int getCircleY(BYTE *pImg, int width, int height, int *pCount)
+int getCircleY(BYTE *pImg, int width, int height,
+               int *xIdx, int *yIdx, int *N,
+               int *pCount)
 {
     int x, y, y1 = 0, y2 = height - 1, maxCount = 0, bstY = 0;
     BYTE *pCol;
@@ -673,6 +683,9 @@ int getCircleY(BYTE *pImg, int width, int height, int *pCount)
             if (!pCol[width * y])
             {
                 y1 = y;
+                xIdx[*N] = x;
+                yIdx[*N] = y;
+                (*N)++;
                 break;
             }
         }
@@ -681,6 +694,9 @@ int getCircleY(BYTE *pImg, int width, int height, int *pCount)
             if (!pCol[width * y])
             {
                 y2 = y;
+                xIdx[*N] = x;
+                yIdx[*N] = y;
+                (*N)++;
                 break;
             }
         }
@@ -696,6 +712,52 @@ int getCircleY(BYTE *pImg, int width, int height, int *pCount)
     }
     return bstY;
 }
+
+int getCircleR(int *x, int *y, int N,
+               int x0, int y0,
+               int maxR, int *pCount)
+{
+    int i, r, maxCount, bstR = 0;
+    for (i = 0; i < N; i++)
+    {
+        r = int(sqrt((x[i] - x0) * (x[i] - x0) + (y[i] - y0) * (y[i] - y0)));
+        pCount[r]++;
+    }
+    maxCount = 0;
+    for (r = 0; r < maxR; r++)
+    {
+        if (pCount[r] > maxCount)
+        {
+            maxCount = pCount[r];
+            bstR = r;
+        }
+    }
+    return bstR;
+}
+
+void drawCircle(BYTE *pImg, int width, int height,
+                int x0, int y0, int r,   // 圆心, 半径
+                int color)
+{
+    int theta, x, y;
+    int thickness = 3, i;
+
+    for (theta = 0; theta < 360; theta++) //步长为1度
+    {
+        x = x0 + (int) (r * cos(theta * PI / 180));
+        y = y0 + (int) (r * sin(theta * PI / 180));
+        for (i = -thickness; i <= thickness; i++)
+        {
+            if ((x >= 0) && (x < width) &&
+                (y + i >= 0) && (y + i < height)
+                    )
+            {
+                *(pImg + (y + i) * width + x) = color;
+            }
+        }
+    }
+}
+
 
 int traceContourRmw(BYTE *pImg, int width, int height,  // 二值图像
                     int x0, int y0, // 轮廓起点
@@ -783,6 +845,18 @@ int traceContourRmw(BYTE *pImg, int width, int height,  // 二值图像
         prevCode = code;
     } while (i < 7);
     return N;
+}
+
+void setImgBoundary(BYTE *pImg, int width, int height, int color)
+{
+    int y;
+    BYTE *pRow;
+    memset(pImg, color, width);
+    memset(pImg + (height - 1) * width, color, width);
+    for (y = 0, pRow = pImg; y < height; y++, pRow += width)
+    {
+        pRow[0] = pRow[width - 1] = color;
+    }
 }
 
 void drawContour(BYTE *pImg, int width,

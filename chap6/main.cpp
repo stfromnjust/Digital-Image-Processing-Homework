@@ -128,28 +128,53 @@ void t2_3()
 
 void t3_1()
 {
-    int width, height;
-    int circleX, circleY;
-    BYTE *pImg = read8BitBmp2Img("../resource/H0603Bin.bmp", &width, &height);
-    BYTE *pCountXImg, *pCountYImg;
-    int *pCountX, *pCountY;
-    // 获取X/Y直方图空间
+    int width, height, N = 0;
+    int circleX, circleY, circleR;
+    int maxR;
+    BYTE *pImg = read8BitBmp2Img("../resource/H0604Bin.bmp", &width, &height);
+    BYTE *pCountXImg, *pCountYImg, *pCountRImg;
+    int *pCountX, *pCountY, *pCountR;
+    int *xIdx, *yIdx;
+    maxR = max(width, height);
+    // 获取X/Y直方图空间, 边缘点空间
     pCountX = new int[width]();
     pCountY = new int[height]();
-    pCountXImg = new BYTE[width * 100];
-    pCountYImg = new BYTE[height * 100];
+    pCountR = new int[maxR]();
+    pCountXImg = new BYTE[width * 100]();
+    pCountYImg = new BYTE[height * 100]();
+    pCountRImg = new BYTE[maxR * 100]();
+    xIdx = new int[MAX_POINT_NUM]();
+    yIdx = new int[MAX_POINT_NUM]();
     // 计数
-    circleX = getCircleX(pImg, width, height, pCountX);
-    circleY = getCircleY(pImg, width, height, pCountY);
+    circleX = getCircleX(pImg, width, height, xIdx, yIdx, &N, pCountX);
+    circleY = getCircleY(pImg, width, height, xIdx, yIdx, &N, pCountY);
 #ifdef MY_DEBUG
     // 调试, 输出圆心位置, 获取直方图
     cout << "circleX: " << circleX << "\tcircleY: " << circleY << endl;
     getCountImg(pCountX, width, 1.0, pCountXImg, width, 100);
     getCountImg(pCountY, height, 1.0, pCountYImg, height, 100);
-    write8BitImg2Bmp(pCountXImg, width, 100, "../output/t3_1/H0603Bin_CountXImg.bmp");
-    write8BitImg2Bmp(pCountYImg, height, 100, "../output/t3_1/H0603Bin_CountYImg.bmp");
+    write8BitImg2Bmp(pCountXImg, width, 100, "../output/t3_1/H0604Bin_CountXImg.bmp");
+    write8BitImg2Bmp(pCountYImg, height, 100, "../output/t3_1/H0604Bin_CountYImg.bmp");
 #endif
-
+    // 获取圆心
+    circleR = getCircleR(xIdx, yIdx, N, circleY, circleY, maxR, pCountR);
+#ifdef MY_DEBUG
+    // 调试, 输出半径大小, 获取直方图
+    cout << "circleR: " << circleR << endl;
+    getCountImg(pCountR, maxR, 1.0, pCountRImg, maxR, 100);
+    write8BitImg2Bmp(pCountRImg, maxR, 100, "../output/t3_1/H0604Bin_CountRImg.bmp");
+#endif
+    drawCircle(pImg, width, height, circleX, circleY, circleR, 200);
+    write8BitImg2BmpMark(pImg, width, height, "../output/t3_1/H0604Bin_result.bmp");
+    // 释放空间
+    delete [] yIdx;
+    delete [] xIdx;
+    delete [] pCountRImg;
+    delete [] pCountYImg;
+    delete [] pCountXImg;
+    delete [] pCountR;
+    delete [] pCountY;
+    delete [] pCountX;
 }
 
 void gen_test_img()
@@ -175,29 +200,64 @@ void gen_test_img()
 void t4_test()
 {
     int width, height, N;
-    BYTE *pImg = read8BitBmp2Img("../resource/Figtest_1.bmp", &width, &height);
-    BYTE *pChainCode = new BYTE[1000];
+    int y, x;
+    int maxChainCodeNum = 512 * 512;
+    BYTE *pImg = read8BitBmp2Img("../resource/H0605Bin.bmp", &width, &height);
+    BYTE *pCur;
+    BYTE *pChainCode = new BYTE[maxChainCodeNum];
     // 图像边框设为0, 方便处理
-    N = traceContourRmw(pImg, width, height, 1, 1, true, pChainCode, 1000);
-    for (int i = 0; i < N; i++)
+    setImgBoundary(pImg, width, height, 0);
+    // 跟踪
+    for (y = 1, pCur = pImg + y * width; y < height - 1; y++)
     {
-        printf("->%d", pChainCode[i]);
+        pCur++; // 跳过左部
+        for (x = 1; x < width - 1; x++, pCur++)
+        {
+            if ((*pCur) == 255 && *(pCur - 1) < 2)  // 发现外轮廓
+            {
+                N = traceContourRmw(pImg, width, height, x, y, true, pChainCode, maxChainCodeNum);
+#ifdef MY_DEBUG
+                printf("\nouter: (y: %d, x: %d)", y, x);
+                for (int i = 0; i < N; i++)
+                {
+                    printf("->%d", pChainCode[i]);
+                }
+#endif
+                drawContour(pImg, width, x, y, pChainCode, N, 200);
+            }
+        }
+        pCur++; // 跳过右部
     }
-    drawContour(pImg, width, 1, 1, pChainCode, N, 200);
-    write8BitImg2BmpMark(pImg, width, height, "../output/t4/Figtest_1.bmp");
+    write8BitImg2BmpMark(pImg, width, height, "../output/t4/H0605Bin.bmp");
+    delete [] pChainCode;
 }
 
-
-
-int main(void)
+void inverseImg(BYTE *pImg, int width, int height)
 {
-    int repeatTimes = 1000;
+    BYTE *pCur, *pEnd = pImg + width * height;
+    for (pCur = pImg; pCur < pEnd; pCur++)
+    {
+        *pCur = ~*pCur;
+    }
+}
+
+void testInverseImg()
+{
+    int width, height;
+    BYTE *pImg = read8BitBmp2Img("../resource/Fig6_23_ppt.bmp", &width, &height);
+    inverseImg(pImg, width, height);
+    write8BitImg2Bmp(pImg, width, height, "../resource/Fig_6_23_ppt.bmp");
+}
+
+int main()
+{
+    int repeatTimes = 1;
     clock_t start = clock(), end;
     for (int i = 0; i < repeatTimes; i++)
     {
 //        t2_1();   // Release: 4741ms
 //        t2_2();     // Release: 2588ms
-//        t3_1();
+        t3_1();
 //        gen_test_img();
 //        t4_test();
     }
