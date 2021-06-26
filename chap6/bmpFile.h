@@ -30,6 +30,15 @@ int collectEdgePoints_Fig(BYTE *pImg, int width, int height,
 int collectEdgePoints_H(BYTE *pImg, int width, int height,
                         int *xIdx, int *yIdx);
 
+// TODO implement
+int collectEdgePoints_Airport(BYTE *pImg, int width, int height,
+                              int *xIdx, int *yIdx,
+                              int *pDwCount, int *bstDw);
+
+int collectEdgePoints_Airport(BYTE *pImg, int width, int height,
+                              int *xIdx, int *yIdx,
+                              int dw, int offset);  // 只收集水平间隔为dw +/- offset的点
+
 void drawABCLine(BYTE *pImg, int width, int height,
                  double A, double B, double C,
                  int color);
@@ -56,6 +65,10 @@ void getCountImg(int *pCount, int histSize,  // 一个X/Y/R对应直方图宽度
 
 void getBstHoughLine(int *pCount, int width, int height,
                      int *bstTheta, int *bstRho);
+
+void getBstHoughParallelLine(int *pCount, int width, int height,
+                             int *bstTheta, int *bstRho,
+                             int dw);
 
 void eraseCountImg(int *pCount, int width, int height,
                    int *eraseTheta, int *eraseRho, int radius);
@@ -84,6 +97,14 @@ int traceContourRmw(BYTE *pImg, int width, int height,  // 二值图像
                     BYTE *pChainCode,   //  链码序列
                     int maxChainCodeNum    // 最长序列
 );
+
+void fillContourRmw(BYTE *pImg, int width, int height,
+                    int x0, int y0, // 轮廓起点
+                    bool isOuter,
+                    BYTE *pChainCode,
+                    int N,
+                    int regionColor, int contourColor, int nonColor
+                    );
 
 // 图片边框清零, 防止伸出
 void setImgBoundary(BYTE *pImg, int width, int height, int color);

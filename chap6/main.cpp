@@ -53,6 +53,9 @@ void t2_1()
 #endif
         // 擦去该直线附近的点
         eraseABCLine(pImg, width, height, A, B, C, 255);
+#ifdef MY_DEBUG
+        write8BitImg2Bmp(pImg, width, height, ("../output/t2_1/H0602Bin_erase_" + to_string(i) + ".bmp").c_str());
+#endif
     }
     write8BitImg2BmpMark(pResImg, width, height, "../output/t2_1/H0602Bin_result.bmp");
     // 释放空间
@@ -120,10 +123,54 @@ void t2_3()
 {
     int width, height, N, maxRho;
     int bstTheta, bstRho;
-
-    double A, B, C;
-
-
+    double A, B, C, C1;
+    BYTE *pImg = read8BitBmp2Img("../resource/H0602Bin.bmp", &width, &height);
+    int *xIdx, *yIdx, *pCount;
+    // 假设已知边长
+    int dw = 233;
+    // 申请边缘点空间
+    xIdx = new int[MAX_POINT_NUM]();
+    yIdx = new int[MAX_POINT_NUM]();
+    // 得到maxRho, 霍夫计数器空间大小
+    maxRho = int(sqrt(1.0 * width * width + height * height)) + 1;
+    // 申请霍夫计数器空间
+    pCount = new int[(maxRho * 2 + 1) * 180]();
+    // 获取边缘点
+    N = collectEdgePoints_H(pImg, width, height, xIdx, yIdx);
+    // 计数
+    getHoughCount_Line(xIdx, yIdx, N, maxRho, pCount);
+    // 获取一组平行线
+    getBstHoughParallelLine(pCount, maxRho * 2 + 1, 180, &bstTheta, &bstRho, dw);
+    A = cos(bstTheta * PI / 180);
+    B = sin(bstTheta * PI / 180);
+    C = -bstRho;
+    C1 = -bstRho - dw;
+    drawABCLine(pImg, width, height, A, B, C, 200);
+    drawABCLine(pImg, width, height, A, B, C1, 200);
+    // 获取另一组平行线, 转90°
+    bstTheta = (bstTheta + 90) % 180;
+    int maxCount = 0;
+    pCount += (maxRho * 2 + 1) * bstTheta;
+    for (int rho = 0; rho < maxRho * 2 + 1 - dw; rho++)
+    {
+        if ((pCount[rho] + pCount[rho + dw]) > maxCount)
+        {
+            maxCount = pCount[rho] + pCount[rho + dw];
+            bstRho = rho - maxRho;
+        }
+    }
+    pCount -= (maxRho * 2 + 1) * bstTheta;
+    A = cos(bstTheta * PI / 180);
+    B = sin(bstTheta * PI / 180);
+    C = -bstRho;
+    C1 = -bstRho - dw;
+    drawABCLine(pImg, width, height, A, B, C, 201);
+    drawABCLine(pImg, width, height, A, B, C1, 201);
+    write8BitImg2BmpMark(pImg, width, height, "../output/t2_3/H0602Bin_result.bmp");
+    // 释放空间
+    delete [] pCount;
+    delete [] yIdx;
+    delete [] xIdx;
 }
 
 void t3_1()
@@ -131,7 +178,7 @@ void t3_1()
     int width, height, N = 0;
     int circleX, circleY, circleR;
     int maxR;
-    BYTE *pImg = read8BitBmp2Img("../resource/H0604Bin.bmp", &width, &height);
+    BYTE *pImg = read8BitBmp2Img("../resource/H0603Bin.bmp", &width, &height);
     BYTE *pCountXImg, *pCountYImg, *pCountRImg;
     int *pCountX, *pCountY, *pCountR;
     int *xIdx, *yIdx;
@@ -153,8 +200,8 @@ void t3_1()
     cout << "circleX: " << circleX << "\tcircleY: " << circleY << endl;
     getCountImg(pCountX, width, 1.0, pCountXImg, width, 100);
     getCountImg(pCountY, height, 1.0, pCountYImg, height, 100);
-    write8BitImg2Bmp(pCountXImg, width, 100, "../output/t3_1/H0604Bin_CountXImg.bmp");
-    write8BitImg2Bmp(pCountYImg, height, 100, "../output/t3_1/H0604Bin_CountYImg.bmp");
+    write8BitImg2Bmp(pCountXImg, width, 100, "../output/t3_1/H0603Bin_CountXImg.bmp");
+    write8BitImg2Bmp(pCountYImg, height, 100, "../output/t3_1/H0603Bin_CountYImg.bmp");
 #endif
     // 获取圆心
     circleR = getCircleR(xIdx, yIdx, N, circleY, circleY, maxR, pCountR);
@@ -197,10 +244,10 @@ void gen_test_img()
     write8BitImg2Bmp(pImg, 8, 8, "../resource/Figtest_1.bmp");
 }
 
-void t4_test()
+void t45()
 {
     int width, height, N;
-    int y, x;
+    int y, x, i;
     int maxChainCodeNum = 512 * 512;
     BYTE *pImg = read8BitBmp2Img("../resource/H0605Bin.bmp", &width, &height);
     BYTE *pCur;
@@ -224,11 +271,63 @@ void t4_test()
                 }
 #endif
                 drawContour(pImg, width, x, y, pChainCode, N, 200);
+                fillContourRmw(pImg, width, height, x, y, true, pChainCode, N, 201, 200, 100);
             }
+            else if ((*pCur == 0) && (*(pCur - 1) >= 254))   // 发现内轮廓
+            {
+                N = traceContourRmw(pImg, width, height,
+                                   x - 1, y,
+                                   false,
+                                   pChainCode,
+                                   maxChainCodeNum);
+#ifdef MY_DEBUG
+                printf("\ninner: (y: %d, x: %d)", y, x);
+                for (int i = 0; i < N; i++)
+                {
+                    printf("->%d", pChainCode[i]);
+                }
+#endif
+                drawContour(pImg, width, x - 1, y, pChainCode, N, 202);
+            }
+
         }
         pCur++; // 跳过右部
     }
-    write8BitImg2BmpMark(pImg, width, height, "../output/t4/H0605Bin.bmp");
+    write8BitImg2BmpMark(pImg, width, height, "../output/t4/H0605Bin_trace_fill.bmp");
+#if 1
+    // 3 * 3快速膨胀
+    BYTE *pResImg = read8BitBmp2Img("../resource/H0605Bin.bmp", &width, &height);
+    BYTE *pRes;
+    for (y = 1, pCur = pImg + y * width, pRes = pResImg; y < height - 1; y++)
+    {
+        pCur++;
+        pRes++;
+        for (x = 1; x < width - 1; x++, pCur++, pRes++)
+        {
+            if (pCur[0] == 200)
+            {
+               if (pCur[0] >= 180 || pCur[1] >= 180 || pCur[-1] >= 180
+               || pCur[width] >= 180 || pCur[-width] >= 180
+               || pCur[-width - 1] >= 180 || pCur[-width + 1] >= 180
+               || pCur[width - 1] >= 180 || pCur[width + 1] >= 180)
+               {
+                   pRes[0] = 255;
+               }
+            }
+        }
+        pCur++;
+        pRes++;
+    }
+    write8BitImg2Bmp(pResImg, width, height, "../output/t5/H0605Bin_swell.bmp");
+    delete [] pResImg;
+#else
+    // 3 * 3快速腐蚀
+    for (i = 0; i < width * height; i++)
+    {
+        pImg[i] = (pImg[i] == 201) * 255;
+    }
+    write8BitImg2Bmp(pImg, width, height, "../output/t5/H0605Bin_corrorsion.bmp");
+#endif
     delete [] pChainCode;
 }
 
@@ -249,6 +348,70 @@ void testInverseImg()
     write8BitImg2Bmp(pImg, width, height, "../resource/Fig_6_23_ppt.bmp");
 }
 
+void t7()
+{
+    int width, height, N, bstDw, maxRho, bstTheta, bstRho;
+    double A, B, C, C1;
+    BYTE *pImg = read8BitBmp2Img("../resource/H0606Bin.bmp", &width, &height);
+    BYTE *pCountImg;
+    int *xIdx, *yIdx, *pDwCount, *pCount;
+    xIdx = new int[MAX_POINT_NUM];
+    yIdx = new int[MAX_POINT_NUM];
+    // 得到maxRho, 霍夫计数器空间大小
+    maxRho = int(sqrt(1.0 * width * width + height * height)) + 1;
+    // 申请霍夫计数器空间
+    pCount = new int[(maxRho * 2 + 1) * 180]();
+    pCountImg = new BYTE[(maxRho * 2 + 1) * 180]();
+    N = collectEdgePoints_Airport(pImg, width, height, xIdx, yIdx, 30, 5);
+    getHoughCount_Line(xIdx, yIdx, N, maxRho, pCount);
+#ifdef MY_DEBUG
+    // 调试 输出计数器图片
+    getCountImg(pCount, maxRho * 2 + 1, 180, pCountImg);
+    write8BitImg2Bmp(pCountImg, maxRho * 2 + 1, 180, "../output/t7/CountImg.bmp");
+#endif
+    for (int i = 0; i < 4; i++)
+    {
+        getBstHoughLine(pCount, maxRho * 2 + 1, 180, &bstTheta, &bstRho);
+        A = cos(bstTheta * PI / 180);
+        B = sin(bstTheta * PI / 180);
+        C = -bstRho;
+        drawABCLine(pImg, width, height, A, B, C, 200);
+        eraseCountImg(pCount, maxRho * 2 + 1, 180, &bstTheta, &bstRho, 2);
+    }
+    write8BitImg2BmpMark(pImg, width, height, "../output/t7/H0606Bin.bmp");
+    // 释放空间
+    delete [] pCountImg;
+    delete [] pCount;
+    delete [] yIdx;
+    delete [] xIdx;
+}
+
+// TODO check and show
+// 利用转角表判定一条轮廓线是逆时针方向的还是顺时针方向
+bool isChainCodeClockWise(BYTE *pChainCode, int n)
+{
+    static int dx[8] = { 1, 1, 0,-1,-1,-1, 0, 1 };  // 顺时针
+    static int dy[8] = { 0,-1,-1,-1, 0, 1, 1, 1 };
+    static int angleLUT[][8]{
+            0, 1, 2, 3, 0,-3,-2,-1,
+            -1, 0, 1, 2, 3, 0,-3,-2,
+            -2,-1, 0, 1, 2, 3, 0,-3,
+            -3,-2,-1, 0, 1, 2, 3, 0,
+            0,-3,-2,-1, 0, 1, 2, 3,
+            3, 0,-3,-2,-1, 0, 1, 2,
+            2, 3, 0,-3,-2,-1, 0, 1,
+            1, 2, 3, 0,-3,-2,-1, 0,
+    };  // 1表示45度
+
+    int sum = 0, pre = *pChainCode;
+    for (int i = 0; i < n; i++)
+    {
+        sum += angleLUT[pre][pChainCode[i]];
+        pre = pChainCode[i];
+    }
+    return sum > 0;
+}
+
 int main()
 {
     int repeatTimes = 1;
@@ -257,9 +420,10 @@ int main()
     {
 //        t2_1();   // Release: 4741ms
 //        t2_2();     // Release: 2588ms
-        t3_1();
-//        gen_test_img();
-//        t4_test();
+//        t2_3();     // Release: 1652ms
+//        t3_1();
+//        t45();
+//        t7();
     }
     end = clock();
     printf("Time: %d ms\n", end - start);

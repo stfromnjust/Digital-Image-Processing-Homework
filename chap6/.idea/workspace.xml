@@ -13,11 +13,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f292dad3-afa2-4048-9a89-488fe7cea704" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmpFile.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/bmpFile.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bmpFile.h" beforeDir="false" afterPath="$PROJECT_DIR$/bmpFile.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/t4/Fig_6_21_ppt.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/t4/Figtest_1.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/t4/H0605Bin.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resource/Fig6_21_ppt.bmp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resource/Fig6_23_ppt.bmp" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,14 +67,14 @@
     <property name="settings.editor.selected.configurable" value="CMakeSettings" />
   </component>
   <component name="RunManager">
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration name="chap6" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="chap6" TARGET_NAME="chap6" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="chap6" RUN_TARGET_NAME="chap6">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="chap6" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="chap6" TARGET_NAME="chap6" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="chap6" RUN_TARGET_NAME="chap6">
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
   </component>
@@ -85,10 +89,25 @@
       <workItem from="1624588945379" duration="1160000" />
       <workItem from="1624590399693" duration="127000" />
       <workItem from="1624590697309" duration="4864000" />
+      <workItem from="1624596880059" duration="309000" />
+      <workItem from="1624607630428" duration="2633000" />
+      <workItem from="1624689680226" duration="19686000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>
